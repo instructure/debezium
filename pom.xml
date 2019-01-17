@@ -133,14 +133,14 @@
 
     <distributionManagement>
       <repository>
-        <id>ossrh</id>
-        <name>Sonatype Staging Repository</name>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        <id>central</id>
+        <name>instructure-releases</name>
+        <url>https://instructure.jfrog.io/instructure/oss-maven</url>
       </repository>
       <snapshotRepository>
-        <id>ossrh</id>
-        <name>OSS Sonatype Nexus Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <id>snapshots</id>
+        <name>instructure-snapshots</name>
+        <url>https://instructure.jfrog.io/instructure/oss-maven</url>
       </snapshotRepository>
     </distributionManagement>
 
