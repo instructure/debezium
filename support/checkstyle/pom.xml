@@ -10,7 +10,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>io.debezium</groupId>
    <artifactId>debezium-checkstyle</artifactId>
-   <version>1.0.0-SNAPSHOT</version>
+   <version>1.0.0-inst1</version>
    <name>Debezium Checkstyle Rules</name>
    <description>Contains the definitions for the Debezium commons code style and conventions</description>
 
@@ -44,7 +44,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
-            <!-- 
+            <!--
             This is not deployed into a Maven repository. It is merely installed into the local Maven repository
             during a local build.
             -->
