@@ -224,6 +224,13 @@ public class PostgresSnapshotChangeEventSource extends RelationalSnapshotChangeE
     @Override
     protected void complete(SnapshotContext snapshotContext) {
         snapshotter.snapshotCompleted();
+        try {
+            jdbcConnection.setAutoCommit(true);
+        }
+        catch (java.sql.SQLException e) {
+            LOGGER.error("Failed to turn on AutoCommit");
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
