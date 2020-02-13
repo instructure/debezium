@@ -182,7 +182,7 @@ public abstract class RelationalSnapshotChangeEventSource implements SnapshotCha
             rollbackTransaction(connection);
 
             LOGGER.info("Snapshot step 8 - Finalizing");
-
+            connection.setAutoCommit(true);
             complete(ctx);
         }
     }
