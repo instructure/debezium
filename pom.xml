@@ -189,14 +189,14 @@
 
     <distributionManagement>
       <repository>
-        <id>ossrh</id>
-        <name>Sonatype Staging Repository</name>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        <id>central</id>
+        <name>instructure-release</name>
+        <url>https://instructure.jfrog.io/instructure/oss-maven</url>
       </repository>
       <snapshotRepository>
-        <id>ossrh</id>
+        <id>instructure-snapshots</id>
         <name>OSS Sonatype Nexus Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <url>https://instructure.jfrog.io/instructure/oss-maven</url>
       </snapshotRepository>
     </distributionManagement>
 
@@ -753,7 +753,7 @@
                     <releaseProfiles>docs,assembly,release-sign-artifacts,release</releaseProfiles>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <extensions>true</extensions>
@@ -762,7 +762,7 @@
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
-            </plugin>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
