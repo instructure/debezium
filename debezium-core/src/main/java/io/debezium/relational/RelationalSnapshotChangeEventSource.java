@@ -339,8 +339,8 @@ public abstract class RelationalSnapshotChangeEventSource implements SnapshotCha
     /**
      * Dispatches the data change events for the records of a single table.
      */
-    private void createDataEventsForTable(ChangeEventSourceContext sourceContext, SnapshotContext snapshotContext, SnapshotReceiver snapshotReceiver,
-                                          Table table)
+    protected void createDataEventsForTable(ChangeEventSourceContext sourceContext, SnapshotContext snapshotContext, SnapshotReceiver snapshotReceiver,
+                                            Table table)
             throws InterruptedException {
 
         long exportStart = clock.currentTimeInMillis();

@@ -247,6 +247,16 @@ public class PostgresSnapshotChangeEventSource extends RelationalSnapshotChangeE
         }
     }
 
+    @Override
+    protected void createDataEventsForTable(ChangeEventSourceContext sourceContext, SnapshotContext snapshotContext, EventDispatcher.SnapshotReceiver snapshotReceiver,
+                                            Table table)
+            throws InterruptedException {
+        super.createDataEventsForTable(sourceContext, snapshotContext, snapshotReceiver, table);
+        // Mark Table as completed
+        PostgresOffsetContext offset = (PostgresOffsetContext) snapshotContext.offset;
+        offset.setTableSnapshotCompleted(table.id().toString());
+    }
+
     /**
      * Mutable context which is populated in the course of snapshotting.
      */

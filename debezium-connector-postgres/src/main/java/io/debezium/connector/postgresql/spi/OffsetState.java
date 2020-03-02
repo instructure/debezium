@@ -6,8 +6,10 @@
 package io.debezium.connector.postgresql.spi;
 
 import java.time.Instant;
+import java.util.HashSet;
 
 import io.debezium.annotation.Incubating;
+import io.debezium.relational.TableId;
 
 /**
  * A simple data container that represents the last seen offset
@@ -23,13 +25,15 @@ public class OffsetState {
     private final Long xmin;
     private final Instant commitTs;
     private final boolean snapshotting;
+    private final HashSet<String> completedTables;
 
-    public OffsetState(Long lsn, Long txId, Long xmin, Instant lastCommitTs, boolean isSnapshot) {
+    public OffsetState(Long lsn, Long txId, Long xmin, Instant lastCommitTs, boolean isSnapshot, HashSet<String> completedTables) {
         this.lsn = lsn;
         this.txId = txId;
         this.xmin = xmin;
         this.commitTs = lastCommitTs;
         this.snapshotting = isSnapshot;
+        this.completedTables = completedTables;
     }
 
     /**
@@ -65,5 +69,9 @@ public class OffsetState {
      */
     public boolean snapshotInEffect() {
         return snapshotting;
+    }
+
+    public boolean isTableCompleted(TableId tableId) {
+        return completedTables.contains(tableId.toString());
     }
 }

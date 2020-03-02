@@ -5,10 +5,17 @@
  */
 package io.debezium.connector.postgresql;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.kafka.connect.data.Schema;
@@ -40,12 +47,12 @@ public class PostgresOffsetContext implements OffsetContext {
     private Long lastCompletelyProcessedLsn;
 
     private PostgresOffsetContext(PostgresConnectorConfig connectorConfig, Long lsn, Long lastCompletelyProcessedLsn, Long txId, Instant time, boolean snapshot,
-                                  boolean lastSnapshotRecord) {
+                                  boolean lastSnapshotRecord, HashSet<String> completedTables) {
         partition = Collections.singletonMap(SERVER_PARTITION_KEY, connectorConfig.getLogicalName());
         sourceInfo = new SourceInfo(connectorConfig);
 
         this.lastCompletelyProcessedLsn = lastCompletelyProcessedLsn;
-        sourceInfo.update(lsn, time, txId, null, sourceInfo.xmin());
+        sourceInfo.update(lsn, time, txId, null, sourceInfo.xmin(), completedTables);
         sourceInfoSchema = sourceInfo.schema();
 
         this.lastSnapshotRecord = lastSnapshotRecord;
@@ -175,7 +182,24 @@ public class PostgresOffsetContext implements OffsetContext {
             final Instant useconds = Conversions.toInstantFromMicros((Long) offset.get(SourceInfo.TIMESTAMP_USEC_KEY));
             final boolean snapshot = (boolean) ((Map<String, Object>) offset).getOrDefault(SourceInfo.SNAPSHOT_KEY, Boolean.FALSE);
             final boolean lastSnapshotRecord = (boolean) ((Map<String, Object>) offset).getOrDefault(SourceInfo.LAST_SNAPSHOT_RECORD_KEY, Boolean.FALSE);
-            return new PostgresOffsetContext(connectorConfig, lsn, lastCompletelyProcessedLsn, txId, useconds, snapshot, lastSnapshotRecord);
+            final String serializedCompletedTables = (String) ((Map<String, Object>) offset).getOrDefault(SourceInfo.COMPLETED_TABLES, new HashSet<String>());
+            final HashSet<String> completedTables = deSerializeCompletedTables(serializedCompletedTables);
+            return new PostgresOffsetContext(connectorConfig, lsn, lastCompletelyProcessedLsn, txId, useconds, snapshot, lastSnapshotRecord, completedTables);
+        }
+
+        @SuppressWarnings("unchecked")
+        private HashSet<String> deSerializeCompletedTables(String serializedArray) {
+            if (serializedArray == null || serializedArray.isEmpty()) {
+                return new HashSet<>();
+            }
+            try {
+                ByteArrayInputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(serializedArray.getBytes()));
+                return (HashSet<String>) new ObjectInputStream(in).readObject();
+            }
+            catch (IOException | ClassNotFoundException ex) {
+                LOGGER.warn("Failed to deserialize the completed tables HashSet");
+                return new HashSet<>();
+            }
         }
     }
 
@@ -199,7 +223,8 @@ public class PostgresOffsetContext implements OffsetContext {
                     txId,
                     clock.currentTimeAsInstant(),
                     false,
-                    false);
+                    false,
+                    new HashSet<>());
         }
         catch (SQLException e) {
             throw new ConnectException("Database processing error", e);
@@ -212,7 +237,8 @@ public class PostgresOffsetContext implements OffsetContext {
                 sourceInfo.txId(),
                 sourceInfo.xmin(),
                 sourceInfo.timestamp(),
-                sourceInfo.isSnapshot());
+                sourceInfo.isSnapshot(),
+                sourceInfo.completedTables());
     }
 
     @Override
@@ -224,4 +250,9 @@ public class PostgresOffsetContext implements OffsetContext {
     public void event(DataCollectionId tableId, Instant instant) {
         sourceInfo.update(instant, (TableId) tableId);
     }
+
+    public void setTableSnapshotCompleted(String tableID) {
+        sourceInfo.completedTables().add(tableID);
+    }
+
 }

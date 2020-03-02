@@ -6,7 +6,12 @@
 
 package io.debezium.connector.postgresql;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.time.Instant;
+import java.util.Base64;
+import java.util.HashSet;
 
 import io.debezium.annotation.NotThreadSafe;
 import io.debezium.connector.SnapshotRecord;
@@ -76,6 +81,7 @@ public final class SourceInfo extends BaseSourceInfo {
     public static final String XMIN_KEY = "xmin";
     public static final String LSN_KEY = "lsn";
     public static final String LAST_SNAPSHOT_RECORD_KEY = "last_snapshot_record";
+    public static final String COMPLETED_TABLES = "completed_tables";
 
     private final String dbName;
 
@@ -85,6 +91,7 @@ public final class SourceInfo extends BaseSourceInfo {
     private Instant timestamp;
     private String schemaName;
     private String tableName;
+    private HashSet<String> completedTables;
 
     protected SourceInfo(PostgresConnectorConfig connectorConfig) {
         super(connectorConfig);
@@ -103,6 +110,23 @@ public final class SourceInfo extends BaseSourceInfo {
      * @param xmin the xmin of the slot, may be null
      * @return this instance
      */
+    protected SourceInfo update(Long lsn, Instant commitTime, Long txId, TableId tableId, Long xmin, HashSet<String> completedTables) {
+        this.lsn = lsn;
+        if (commitTime != null) {
+            this.timestamp = commitTime;
+        }
+        this.txId = txId;
+        this.xmin = xmin;
+        if (tableId != null && tableId.schema() != null) {
+            this.schemaName = tableId.schema();
+        }
+        if (tableId != null && tableId.table() != null) {
+            this.tableName = tableId.table();
+        }
+        this.completedTables = completedTables;
+        return this;
+    }
+
     protected SourceInfo update(Long lsn, Instant commitTime, Long txId, TableId tableId, Long xmin) {
         this.lsn = lsn;
         if (commitTime != null) {
@@ -165,6 +189,10 @@ public final class SourceInfo extends BaseSourceInfo {
         return super.snapshot();
     }
 
+    public HashSet<String> completedTables() {
+        return this.completedTables;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("source_info[");
@@ -188,6 +216,12 @@ public final class SourceInfo extends BaseSourceInfo {
         }
         if (tableName != null) {
             sb.append(", table=").append(tableName);
+        }
+        if (completedTables != null && !completedTables.isEmpty()) {
+            sb.append(", completedTables[");
+            completedTables.forEach(s -> sb.append('\'').append(s).append("', "));
+            sb.delete(sb.length() - 2, sb.length()); // remove the last comma and space
+            sb.append("]");
         }
         sb.append(']');
         return sb.toString();
