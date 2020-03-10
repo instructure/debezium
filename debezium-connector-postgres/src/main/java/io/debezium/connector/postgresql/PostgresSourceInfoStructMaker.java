@@ -5,20 +5,19 @@
  */
 package io.debezium.connector.postgresql;
 
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.SchemaBuilder;
-import org.apache.kafka.connect.data.Struct;
-
-import io.debezium.config.CommonConnectorConfig;
-import io.debezium.connector.AbstractSourceInfoStructMaker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
 import java.util.HashSet;
+
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.config.CommonConnectorConfig;
+import io.debezium.connector.AbstractSourceInfoStructMaker;
 
 public class PostgresSourceInfoStructMaker extends AbstractSourceInfoStructMaker<SourceInfo> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgresSourceInfoStructMaker.class);
@@ -68,7 +67,7 @@ public class PostgresSourceInfoStructMaker extends AbstractSourceInfoStructMaker
         return result;
     }
 
-    private String serializeCompletedTables(HashSet<String> completedTables) {
+    public static String serializeCompletedTables(HashSet<String> completedTables) {
         if (completedTables == null) {
             return null;
         }
@@ -76,7 +75,8 @@ public class PostgresSourceInfoStructMaker extends AbstractSourceInfoStructMaker
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             new ObjectOutputStream(baos).writeObject(completedTables);
             return Base64.getEncoder().encodeToString(baos.toByteArray());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             LOGGER.error("Failed to serialize completed Tables");
             return null;
         }

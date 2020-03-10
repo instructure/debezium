@@ -6,10 +6,8 @@
 package io.debezium.connector.postgresql;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Base64;
@@ -90,6 +88,9 @@ public class PostgresOffsetContext implements OffsetContext {
         }
         if (lastCompletelyProcessedLsn != null) {
             result.put(LAST_COMPLETELY_PROCESSED_LSN_KEY, lastCompletelyProcessedLsn);
+        }
+        if (sourceInfo.completedTables() != null) {
+            result.put(SourceInfo.COMPLETED_TABLES, PostgresSourceInfoStructMaker.serializeCompletedTables(sourceInfo.completedTables()));
         }
         return result;
     }
@@ -182,7 +183,7 @@ public class PostgresOffsetContext implements OffsetContext {
             final Instant useconds = Conversions.toInstantFromMicros((Long) offset.get(SourceInfo.TIMESTAMP_USEC_KEY));
             final boolean snapshot = (boolean) ((Map<String, Object>) offset).getOrDefault(SourceInfo.SNAPSHOT_KEY, Boolean.FALSE);
             final boolean lastSnapshotRecord = (boolean) ((Map<String, Object>) offset).getOrDefault(SourceInfo.LAST_SNAPSHOT_RECORD_KEY, Boolean.FALSE);
-            final String serializedCompletedTables = (String) ((Map<String, Object>) offset).getOrDefault(SourceInfo.COMPLETED_TABLES, new HashSet<String>());
+            final String serializedCompletedTables = (String) ((Map<String, Object>) offset).getOrDefault(SourceInfo.COMPLETED_TABLES, "");
             final HashSet<String> completedTables = deSerializeCompletedTables(serializedCompletedTables);
             return new PostgresOffsetContext(connectorConfig, lsn, lastCompletelyProcessedLsn, txId, useconds, snapshot, lastSnapshotRecord, completedTables);
         }
@@ -252,6 +253,7 @@ public class PostgresOffsetContext implements OffsetContext {
     }
 
     public void setTableSnapshotCompleted(String tableID) {
+        LOGGER.info("Marking {} as completed", tableID);
         sourceInfo.completedTables().add(tableID);
     }
 

@@ -73,7 +73,7 @@ public class SourceInfoTest {
                 .field("txId", Schema.OPTIONAL_INT64_SCHEMA)
                 .field("lsn", Schema.OPTIONAL_INT64_SCHEMA)
                 .field("xmin", Schema.OPTIONAL_INT64_SCHEMA)
-                .field("completed_tables", SchemaBuilder.array(Schema.STRING_SCHEMA).optional().build())
+                .field("completed_tables", Schema.OPTIONAL_STRING_SCHEMA)
                 .build();
 
         VerifyRecord.assertConnectSchemasAreEqual(null, source.struct().schema(), schema);

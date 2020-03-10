@@ -6,11 +6,7 @@
 
 package io.debezium.connector.postgresql;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.HashSet;
 
 import io.debezium.annotation.NotThreadSafe;
@@ -91,7 +87,7 @@ public final class SourceInfo extends BaseSourceInfo {
     private Instant timestamp;
     private String schemaName;
     private String tableName;
-    private HashSet<String> completedTables;
+    private HashSet<String> completedTables = new HashSet<>();
 
     protected SourceInfo(PostgresConnectorConfig connectorConfig) {
         super(connectorConfig);
@@ -123,7 +119,10 @@ public final class SourceInfo extends BaseSourceInfo {
         if (tableId != null && tableId.table() != null) {
             this.tableName = tableId.table();
         }
-        this.completedTables = completedTables;
+        if (completedTables != null) {
+            this.completedTables.addAll(completedTables);
+        }
+
         return this;
     }
 
