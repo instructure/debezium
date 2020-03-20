@@ -199,6 +199,11 @@ public class PostgresSnapshotChangeEventSource extends RelationalSnapshotChangeE
     }
 
     @Override
+    protected void tableCompleted(TableId tableId) {
+        snapshotter.tableCompleted(tableId);
+    }
+
+    @Override
     protected Object getColumnValue(ResultSet rs, int columnIndex, Column column) throws SQLException {
         try {
             final ResultSetMetaData metaData = rs.getMetaData();
