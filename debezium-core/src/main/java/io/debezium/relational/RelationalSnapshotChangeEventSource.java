@@ -279,6 +279,7 @@ public abstract class RelationalSnapshotChangeEventSource extends AbstractSnapsh
             LOGGER.debug("Snapshotting table {}", tableId);
 
             createDataEventsForTable(sourceContext, snapshotContext, snapshotReceiver, snapshotContext.tables.forTable(tableId));
+            tableCompleted(tableId);
         }
 
         snapshotContext.offset.preSnapshotCompletion();
@@ -397,6 +398,9 @@ public abstract class RelationalSnapshotChangeEventSource extends AbstractSnapsh
     // TODO Handle override option generically; a problem will be how to handle the dynamic part (Oracle's "... as of
     // scn xyz")
     protected abstract Optional<String> getSnapshotSelect(SnapshotContext snapshotContext, TableId tableId);
+
+    protected void tableCompleted(TableId tableId) {
+    }
 
     private Column[] getColumnsForResultSet(Table table, ResultSet rs) throws SQLException {
         ResultSetMetaData metaData = rs.getMetaData();

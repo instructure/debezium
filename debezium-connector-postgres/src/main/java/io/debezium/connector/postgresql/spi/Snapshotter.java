@@ -89,4 +89,12 @@ public interface Snapshotter {
                 .append(lineSeparator));
         return Optional.of(statements.toString());
     }
+
+    /**
+     * Callback method to let the snapshotter know that the table finished snapshotting
+     * @param tableId The tableId that was completed
+     */
+    default void tableCompleted(TableId tableId) {
+
+    }
 }
