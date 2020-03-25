@@ -331,6 +331,15 @@ public abstract class CommonConnectorConfig {
             .withDescription(
                     "this setting must be set to specify a list of tables/collections whose snapshot must be taken on creating or restarting the connector.");
 
+    public static final Field SNAPSHOT_MAX_THREADS = Field.create("snapshot.max.threads")
+            .withDisplayName("Snapshot maximum threads")
+            .withType(Type.INT)
+            .withWidth(Width.SHORT)
+            .withImportance(Importance.MEDIUM)
+            .withDefault(1)
+            .withValidation(Field::isPositiveInteger)
+            .withDescription("The maximum number of threads used to perform the snapshot.  Defaults to 1.");
+
     public static final Field SOURCE_STRUCT_MAKER_VERSION = Field.create("source.struct.version")
             .withDisplayName("Source struct maker version")
             .withEnum(Version.class, Version.V2)
@@ -400,15 +409,6 @@ public abstract class CommonConnectorConfig {
             .withDescription("The maximum number of records that should be loaded into memory while streaming.  A value of `0` uses the default JDBC fetch size.")
             .withValidation(Field::isNonNegativeInteger)
             .withDefault(DEFAULT_QUERY_FETCH_SIZE);
-
-    public static final Field SNAPSHOT_MAX_THREADS = Field.create("snapshot.max.threads")
-            .withDisplayName("Snapshot maximum threads")
-            .withType(Type.INT)
-            .withWidth(Width.SHORT)
-            .withImportance(Importance.MEDIUM)
-            .withDefault(1)
-            .withValidation(Field::isPositiveInteger)
-            .withDescription("The maximum number of threads used to perform the snapshot.  Defaults to 1.");
 
     protected static final ConfigDefinition CONFIG_DEFINITION = ConfigDefinition.editor()
             .connector(

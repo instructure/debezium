@@ -645,7 +645,7 @@ public class PostgresConnectorIT extends AbstractConnectorTest {
 
         SourceRecords actualRecords = consumeRecordsByTopic(6);
         assertKey(actualRecords.allRecordsInOrder().get(0), "pk", 1);
-        assertKey(actualRecords.allRecordsInOrder().get(1), "pk", 2);
+        assertKey(actualRecords.allRecordsInOrder().get(1), "pk", 1);
 
         // JdbcConnection#connection() is called multiple times during connector start-up,
         // so the given statements will be executed multiple times, resulting in multiple
